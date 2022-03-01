@@ -7,12 +7,12 @@
     "presence_type": 3,
     "presence_rate": 5,
     "fieldname": {
-        "status": "Status",
-        "address": "Address",
-        "port": "Port",
-        "game": "Game",
-        "currentmap": "Current Map",
-        "players": "Players",
-        "country": "Location"
+        "status": "狀態",
+        "address": "IP",
+        "port": "端口",
+        "game": "遊戲",
+        "currentmap": "目前的地圖",
+        "players": "玩家人數",
+        "country": "地區"
     }
 }
