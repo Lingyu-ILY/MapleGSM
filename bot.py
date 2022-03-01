@@ -4,7 +4,7 @@ import urllib
 import asyncio
 import requests
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 # discord
 import discord
@@ -36,7 +36,7 @@ if 'DGSM_TOKEN' in os.environ:
                 time.sleep(1)
 
 # env values
-VERSION = '1.8.1'
+VERSION = '1.8.3'
 SETTINGS = Settings.get()
 DGSM_TOKEN = os.getenv('DGSM_TOKEN', SETTINGS['token'])
 DGSM_PREFIX = os.getenv("DGSM_PREFIX", SETTINGS.get('prefix', '!'))
@@ -80,7 +80,7 @@ class DiscordGSM():
         icon_file_name = 'images/discordgsm' + ('DGSM_TOKEN' in os.environ and '-heroku' or '') + '.png'
         with open(icon_file_name, 'rb') as file:
             try:
-                await bot.user.edit(username='DiscordGSM', avatar=file.read())
+                await bot.user.edit(username='MapleGS', avatar=file.read())
             except:
                 pass
 
@@ -147,7 +147,7 @@ class DiscordGSM():
             for server in self.server_list:
                 server_cache = ServerCache(server['addr'], server['port'])
                 data = server_cache.get_data()
-                if data and server_cache.get_status() == 'Online':
+                if data and server_cache.get_status() == '已上線':
                     total_activeplayers += int(data['players'])
                     total_maxplayers += int(data['maxplayers'])
                   
@@ -158,7 +158,7 @@ class DiscordGSM():
 
             server_cache = ServerCache(self.server_list[self.current_display_server]['addr'], self.server_list[self.current_display_server]['port'])
             data = server_cache.get_data()
-            if data and server_cache.get_status() == 'Online':
+            if data and server_cache.get_status() == '已上線':
                 activity_text = f'{data["players"]}/{data["maxplayers"]} on {data["name"]}' if int(data["maxplayers"]) > 0 else '0 players'
             else:
                 activity_text = None
@@ -220,9 +220,9 @@ class DiscordGSM():
             # load server status Online/Offline
             status = server_cache.get_status()
 
-            emoji = (status == 'Online') and ':green_circle:' or ':red_circle:'
+            emoji = (status == '已上線') and ':green_circle:' or ':red_circle:'
 
-            if status == 'Online':
+            if status == '已上線':
                 if int(data['maxplayers']) <= int(data['players']):
                     color = discord.Color.from_rgb(240, 71, 71) # red
                 elif int(data['maxplayers']) <= int(data['players']) * 2:
@@ -239,25 +239,52 @@ class DiscordGSM():
             else:
                 color = discord.Color.from_rgb(32, 34, 37) # dark
 
+            if status == '已上線':
+                if int(data['maxplayers']) <= int(data['players']):
+                    status_st = '已上線|擁擠'
+                elif int(data['maxplayers']) <= int(data['players']) * 2:
+                    status_st = '已上線|繁忙'
+                else:
+                    status_st = '已上線|順暢'
+            else:
+                status_st = server_cache.get_status()
+
             title = (data['password'] and ':lock: ' or '') + f'`{data["name"]}`'
             custom = ('custom' in server) and server['custom'] or None
             if custom and custom.strip():
                 embed = discord.Embed(title=title, description=custom, color=color)
             elif server['type'] == 'SourceQuery' and not custom:
-                embed = discord.Embed(title=title, description=f'Connect: steam://connect/{data["addr"]}:{server["port"]}', color=color)
+                portvalue = server['port']
+                if server['port'] == 30001: portvalue = 30000
+                embed = discord.Embed(title=title, description=f'連接: steam://connect/{data["addr"]}:{portvalue}', color=color)
             else:
                 embed = discord.Embed(title=title, color=color)
 
-            embed.add_field(name=FIELD_STATUS, value=f'{emoji} **{status}**', inline=True)
-            embed.add_field(name=f'{FIELD_ADDRESS}:{FIELD_PORT}', value=f'`{data["addr"]}:{data["port"]}`', inline=True)
+            embed.add_field(name=FIELD_STATUS, value=f'{emoji} **{status_st}**', inline=True)
+
+            if status == '已上線':
+                ipvalue = str(data['addr'])
+                if str(data['addr']) == 'mcserver1.ancientmaple.com': ipvalue = 'mc.ancientmaple.com'
+            else:
+                ipvalue = 'IP'
+			
+            embed.add_field(name=f'{FIELD_ADDRESS}:{FIELD_PORT}', value=f'`{ipvalue}:{data["port"]}`', inline=True)
  
             flag_emoji = ('country' in server) and (':flag_' + server['country'].lower() + f': {server["country"]}') or ':united_nations: Unknown'
             embed.add_field(name=FIELD_COUNTRY, value=flag_emoji, inline=True)
 
             embed.add_field(name=FIELD_GAME, value=data['game'], inline=True)
-            embed.add_field(name=FIELD_CURRENTMAP, value=data['map'], inline=True)
 
-            if status == 'Online':
+            if status == '已上線':
+                mapvalue = str(data['map'])
+                if str(data['map']) == '': mapvalue += 'Empyrion_Galactic'
+                elif str(data['map']) == 'BungeeCord_Proxy': mapvalue = 'Minecraft World'
+            else:
+                mapvalue = 'Map'
+			
+            embed.add_field(name=FIELD_CURRENTMAP, value=f'{mapvalue}', inline=True)
+
+            if status == '已上線':
                 value = str(data['players']) # example: 20/32
                 if int(data['bots']) > 0: value += f' ({data["bots"]})' # example: 20 (2)/32
             else:
@@ -276,9 +303,11 @@ class DiscordGSM():
             # server fail to query
             color = discord.Color.from_rgb(240, 71, 71) # red
             embed = discord.Embed(title='ERROR', description=f'{FIELD_STATUS}: :warning: **Fail to query**', color=color)
-            embed.add_field(name=f'{FIELD_ADDRESS}:{FIELD_PORT}', value=f'{server["addr"]}:{server["port"]}', inline=True)
-        
-        embed.set_footer(text=f'DiscordGSM v{VERSION} | 📺Game Server Monitor | Last update: ' + datetime.now().strftime('%a, %Y-%m-%d %I:%M:%S%p'), icon_url='https://github.com/DiscordGSM/DiscordGSM/raw/master/images/discordgsm.png')
+            embed.add_field(name=f'{FIELD_ADDRESS}:{FIELD_PORT}', value=f'Disable', inline=True)
+        #{server["addr"]}:{server["port"]}
+        timezone_offset = +8.0
+        tzinfo = timezone(timedelta(hours=timezone_offset))
+        embed.set_footer(text=f'紅楓伺服器狀態 v{VERSION} | 最後更新: ' + datetime.now(tzinfo).strftime('%Y-%m-%d %I:%M:%S%p'), icon_url='https://github.com/DiscordGSM/DiscordGSM/raw/master/images/discordgsm.png')
         
         return embed
 

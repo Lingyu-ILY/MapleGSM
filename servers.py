@@ -87,7 +87,7 @@ class Servers:
             if result:
                 server_cache.save_data(server['game'], result['GamePort'], result['Hostname'], result['Map'], result['MaxPlayers'], result['Players'], result['Bots'], result['Password'] == 0x01)
             else:
-                server_cache.set_status('Offline')
+                server_cache.set_status('已離線')
 
         elif server['type'] == 'UT3Query':
             query = UT3Query(str(server['addr']), int(server['port']))
@@ -98,7 +98,7 @@ class Servers:
             if result:
                 server_cache.save_data(server['game'], result['hostport'], result['hostname'], result['map'], result['maxplayers'], result['numplayers'], 0, False)
             else:
-                server_cache.set_status('Offline')
+                server_cache.set_status('已離線')
 
         elif server['type'] == 'GamedigQuery':
             query = GamedigQuery(str(server['game']), str(server['addr']), int(server['port']))
@@ -108,7 +108,7 @@ class Servers:
             if result:
                 server_cache.save_data(server['game'], server['port'], result['Hostname'], result['Map'], result['MaxPlayers'], result['Players'], result['Bots'], result['Password'])
             else:
-                server_cache.set_status('Offline')
+                server_cache.set_status('已離線')
 
 
 
@@ -149,7 +149,7 @@ class ServerCache:
         # save current players count, bots count
         data['players'], data['bots'], data['password'] = players, bots, password
 
-        self.set_status('Online')
+        self.set_status('已上線')
 
         with open(f'cache/{self.file_name}.json', 'w', encoding='utf8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
