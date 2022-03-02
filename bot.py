@@ -36,7 +36,7 @@ if 'DGSM_TOKEN' in os.environ:
                 time.sleep(1)
 
 # env values
-VERSION = '1.8.3'
+VERSION = '1.8.4'
 SETTINGS = Settings.get()
 DGSM_TOKEN = os.getenv('DGSM_TOKEN', SETTINGS['token'])
 DGSM_PREFIX = os.getenv("DGSM_PREFIX", SETTINGS.get('prefix', '!'))
@@ -67,7 +67,7 @@ class DiscordGSM():
         self.message_error_count = self.current_display_server = 0
 
     def start(self):
-        self.print_to_console(f'Starting DiscordGSM v{VERSION}...')
+        self.print_to_console(f'Starting MapleGSM v{VERSION}...')
         self.query_servers.start()    
 
     def cancel(self):
@@ -80,7 +80,7 @@ class DiscordGSM():
         icon_file_name = 'images/discordgsm' + ('DGSM_TOKEN' in os.environ and '-heroku' or '') + '.png'
         with open(icon_file_name, 'rb') as file:
             try:
-                await bot.user.edit(username='MapleGS', avatar=file.read())
+                await bot.user.edit(username='MapleGSM', avatar=file.read())
             except:
                 pass
 
@@ -302,12 +302,12 @@ class DiscordGSM():
         else:
             # server fail to query
             color = discord.Color.from_rgb(240, 71, 71) # red
-            embed = discord.Embed(title='ERROR', description=f'{FIELD_STATUS}: :warning: **Fail to query**', color=color)
-            embed.add_field(name=f'{FIELD_ADDRESS}:{FIELD_PORT}', value=f'Disable', inline=True)
+            embed = discord.Embed(title='錯誤', description=f'{FIELD_STATUS}: :warning: **伺服器沒有回應**', color=color)
+            embed.add_field(name=f'詳細記錄', value=f'找不到上次的伺服器回應紀錄', inline=True)
         #{server["addr"]}:{server["port"]}
         timezone_offset = +8.0
         tzinfo = timezone(timedelta(hours=timezone_offset))
-        embed.set_footer(text=f'紅楓伺服器狀態 v{VERSION} | 最後更新: ' + datetime.now(tzinfo).strftime('%Y-%m-%d %I:%M:%S%p'), icon_url='https://github.com/DiscordGSM/DiscordGSM/raw/master/images/discordgsm.png')
+        embed.set_footer(text=f'紅楓遊戲狀態 v{VERSION} | 最後更新: ' + datetime.now(tzinfo).strftime('%Y-%m-%d %I:%M:%S%p'), icon_url='https://github.com/DiscordGSM/DiscordGSM/raw/master/images/discordgsm.png')
         
         return embed
 
