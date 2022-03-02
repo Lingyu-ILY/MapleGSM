@@ -15,6 +15,7 @@
 4. [Docker](https://github.com/DiscordGSM/DiscordGSM/wiki/Install-%E2%80%93-Docker)
 
 5. [Deploy v1.8.3 to Heroku](https://heroku.com/deploy?template=https://github.com/Lingyu-ILY/MapleGSM/tree/v1.8.3)
+6. [Deploy v1.8.4 to Heroku](https://heroku.com/deploy?template=https://github.com/Lingyu-ILY/MapleGSM/tree/v1.8.4)
 
 ## Supported Query Type
 1. [SourceQuery](https://github.com/DiscordGSM/DiscordGSM/wiki/SourceQuery)
