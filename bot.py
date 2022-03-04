@@ -295,8 +295,7 @@ class DiscordGSM():
             embed.add_field(name=FIELD_PLAYERS, value=f'{value}/{data["maxplayers"]}', inline=True)
 
             if 'image_url' in server:
-                randomcache = str(random.random())
-                image_url = str(server['image_url'] + '&cacheBypass=' + randomcache)
+                image_url = str(server['image_url'])
             else:
                 image_url = (CUSTOM_IMAGE_URL and CUSTOM_IMAGE_URL.strip()) and CUSTOM_IMAGE_URL or f'https://github.com/DiscordGSM/Map-Thumbnails/raw/master/{urllib.parse.quote(data["game"])}'
                 image_url += f'/{urllib.parse.quote(data["map"])}.jpg'
@@ -304,7 +303,8 @@ class DiscordGSM():
             embed.set_thumbnail(url=image_url)
 
             if 'bigimage_url' in server:
-                bigimage_url = str(server['bigimage_url'])
+                randomcache = str(random.random())
+                bigimage_url = str(server['bigimage_url'] + '&cacheBypass=' + randomcache)
             #else:
             #    bigimage_url = (CUSTOM_IMAGE_URL and CUSTOM_IMAGE_URL.strip()) and CUSTOM_IMAGE_URL or f'https://github.com/DiscordGSM/Map-Thumbnails/raw/master/{urllib.parse.quote(data["game"])}'
             #    bigimage_url += f'/{urllib.parse.quote(data["map"])}.jpg'
