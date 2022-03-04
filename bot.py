@@ -42,6 +42,7 @@ DGSM_TOKEN = os.getenv('DGSM_TOKEN', SETTINGS['token'])
 DGSM_PREFIX = os.getenv("DGSM_PREFIX", SETTINGS.get('prefix', '!'))
 ROLE_ID = os.getenv('ROLE_ID', SETTINGS.get('role_id', '123'))
 CUSTOM_IMAGE_URL = os.getenv('CUSTOM_IMAGE_URL', SETTINGS.get('image_url', ''))
+CUSTOM_BIGIMAGE_URL = os.getenv('CUSTOM_BIGIMAGE_URL', SETTINGS.get('bigimage_url', ''))
 REFRESH_RATE = int(os.getenv('REFRESH_RATE', SETTINGS['refreshrate'])) if int(os.getenv('REFRESH_RATE', SETTINGS['refreshrate'])) > 5 else 5
 PRESENCE_TYPE = int(os.getenv('PRESENCE_TYPE', SETTINGS.get('presence_type', 3)))
 PRESENCE_RATE = int(os.getenv('PRESENCE_RATE', SETTINGS.get('presence_rate', 5))) if int(os.getenv('PRESENCE_RATE', SETTINGS.get('presence_rate', 5))) > 1 else 1
@@ -299,6 +300,14 @@ class DiscordGSM():
                 image_url += f'/{urllib.parse.quote(data["map"])}.jpg'
 
             embed.set_thumbnail(url=image_url)
+
+            if 'bigimage_url' in server:
+                bigimage_url = str(server['bigimage_url'])
+            #else:
+            #    bigimage_url = (CUSTOM_IMAGE_URL and CUSTOM_IMAGE_URL.strip()) and CUSTOM_IMAGE_URL or f'https://github.com/DiscordGSM/Map-Thumbnails/raw/master/{urllib.parse.quote(data["game"])}'
+            #    bigimage_url += f'/{urllib.parse.quote(data["map"])}.jpg'
+
+            embed.set_image(url=bigimage_url)
         else:
             # server fail to query
             color = discord.Color.from_rgb(240, 71, 71) # red
